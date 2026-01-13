@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Card Generator</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fonts: Clash Grotesk -->
     <link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,300,400,500,600,700&display=swap" rel="stylesheet">
 
     <style>
@@ -18,42 +15,37 @@
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .input-dark { background-color: #000; border: 1px solid #444; color: white; }
-        
-        /* Table Styles */
         .analytics-table { width: 100%; border-collapse: collapse; }
         .analytics-table th { text-align: left; padding: 1rem; color: #888; border-bottom: 1px solid #333; font-weight: 500; }
         .analytics-table td { padding: 1rem; border-bottom: 1px solid #222; }
         .analytics-table tr:hover { background: rgba(255,255,255,0.02); }
-        
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .loader { border: 2px solid #333; border-top: 2px solid #fff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Navigation -->
     <nav class="border-b border-gray-800 p-4 sticky top-0 bg-[#0f0f0f]/80 backdrop-blur z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="text-xl font-bold tracking-wider text-white">CARD<span class="text-purple-500">ADMIN</span></div>
             <div class="flex space-x-6 items-center">
                 <button onclick="adminApp.switchView('config')" id="nav-config" class="text-white font-medium hover:text-purple-400 transition">Configuration</button>
                 <button onclick="adminApp.switchView('analytics')" id="nav-analytics" class="text-gray-400 hover:text-purple-400 transition">Analytics</button>
-                <div class="h-4 w-px bg-gray-700 mx-2"></div>
-                <button onclick="adminApp.resetData()" class="text-xs text-red-400 border border-red-900 px-2 py-1 rounded hover:bg-red-900/20">Reset Config</button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow p-8 flex justify-center">
         
         <!-- View: Configuration -->
         <div id="view-config" class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <!-- Controls -->
             <div class="glass-panel p-6 rounded-2xl space-y-6 h-fit">
-                <h2 class="text-2xl font-bold text-purple-400">Card Setup</h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-purple-400">Card Setup</h2>
+                    <span id="config-status" class="text-xs text-gray-500"></span>
+                </div>
                 
-                <!-- Image Upload -->
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-2">1. Upload Template</label>
                     <div class="relative border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:border-purple-500 transition cursor-pointer" onclick="document.getElementById('admin-upload').click()">
@@ -62,11 +54,8 @@
                     </div>
                 </div>
 
-                <!-- Position Controls -->
                 <div class="space-y-4">
                     <p class="text-sm text-gray-400 mb-2">2. Adjust Positions</p>
-                    
-                    <!-- Name Config -->
                     <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                         <h3 class="font-bold mb-3 text-white border-b border-gray-700 pb-2">Name Settings</h3>
                         <div class="grid grid-cols-3 gap-3">
@@ -75,8 +64,6 @@
                             <div><label class="text-xs text-gray-500 block mb-1">Size</label><input type="number" id="name-size" value="40" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
                         </div>
                     </div>
-
-                    <!-- Batch Config -->
                     <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                         <h3 class="font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-2">Batch Settings</h3>
                         <div class="grid grid-cols-3 gap-3">
@@ -86,8 +73,9 @@
                         </div>
                     </div>
                 </div>
-
-                <button onclick="adminApp.saveConfig()" class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition">Save Configuration</button>
+                <button onclick="adminApp.saveConfig()" id="save-btn" class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition flex justify-center items-center gap-2">
+                    Save to Database
+                </button>
             </div>
 
             <!-- Preview -->
@@ -107,33 +95,21 @@
                     </div>
                     <button onclick="adminApp.loadAnalytics()" class="text-sm bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-white transition">Refresh Data</button>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>Generated At</th>
-                                <th>Name</th>
-                                <th>Batch</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="analytics-body">
-                            <tr><td colspan="5" class="text-center text-gray-500 py-8">Loading data...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Generated At</th><th>Name</th><th>Batch</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="analytics-body"><tr><td colspan="5" class="text-center text-gray-500 py-8">Loading data...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </main>
 
     <!-- Firebase SDKs -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-        import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, getDoc, setDoc, doc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDEJUuNeIej1KKJ2gJKHop4ezWxv3B4CC4",
@@ -145,25 +121,67 @@
             measurementId: "G-XEVP88Z27L"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Expose DB functions to global window for adminApp to use
-        window.fetchCards = async () => {
-            try {
-                const q = query(collection(db, "generated_cards"), orderBy("timestamp", "desc"), limit(50));
-                const querySnapshot = await getDocs(q);
-                const cards = [];
-                querySnapshot.forEach((doc) => {
-                    cards.push({ id: doc.id, ...doc.data() });
-                });
-                return cards;
-            } catch (e) {
-                console.error("Error fetching documents: ", e);
-                return [];
+        // Ensure Auth Helper
+        const ensureAuth = async () => {
+            if (!auth.currentUser) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Auth error:", error);
+                    return false;
+                }
             }
+            return true;
+        };
+
+        // --- Global DB Functions ---
+        
+        // 1. Load Settings
+        window.loadGlobalSettings = async () => {
+            if (!await ensureAuth()) return null;
+            try {
+                const docSnap = await getDoc(doc(db, "app_settings", "config"));
+                if (docSnap.exists()) return docSnap.data();
+                return null;
+            } catch (e) {
+                console.error("Load settings error:", e);
+                return null;
+            }
+        };
+
+        // 2. Save Settings
+        window.saveGlobalSettings = async (settingsData) => {
+            if (!await ensureAuth()) return false;
+            try {
+                await setDoc(doc(db, "app_settings", "config"), settingsData);
+                return true;
+            } catch (e) {
+                console.error("Save settings error:", e);
+                return false;
+            }
+        };
+
+        // 3. Fetch Analytics
+        window.fetchCards = async () => {
+            if (!await ensureAuth()) return { success: false, error: "Auth failed" };
+            try {
+                try {
+                    const q = query(collection(db, "generated_cards"), orderBy("timestamp", "desc"), limit(50));
+                    const querySnapshot = await getDocs(q);
+                    return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
+                } catch (indexError) {
+                    if (indexError.code === 'failed-precondition') {
+                         const q = query(collection(db, "generated_cards"), limit(50));
+                         const querySnapshot = await getDocs(q);
+                         return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), warning: "Missing Index" };
+                    }
+                    throw indexError;
+                }
+            } catch (e) { return { success: false, error: e.message }; }
         };
     </script>
 
@@ -171,77 +189,103 @@
         const adminApp = {
             state: {
                 currentView: 'config',
-                templateImage: null,
-                config: {
-                    name: { x: 50, y: 50, size: 40 },
-                    batch: { x: 50, y: 65, size: 20 }
-                }
+                templateImage: null, // Base64 or URL
+                config: { name: { x: 50, y: 50, size: 40 }, batch: { x: 50, y: 65, size: 20 } }
             },
             imgObj: null,
+            cloudinary: { cloudName: 'da6fjyirm', uploadPreset: 'ifada-card' },
 
-            init() {
-                const savedConfig = localStorage.getItem('cardConfig');
-                const savedImg = localStorage.getItem('cardTemplate');
-                
-                if (savedConfig) {
-                    this.state.config = JSON.parse(savedConfig);
-                    this.updateInputs();
-                }
-                if (savedImg) {
-                    this.state.templateImage = savedImg;
-                    this.loadAndDrawImage();
+            async init() {
+                // Try loading from Database first
+                document.getElementById('config-status').innerText = "Loading from DB...";
+                if (window.loadGlobalSettings) {
+                    const savedData = await window.loadGlobalSettings();
+                    if (savedData) {
+                        this.state.config = savedData.config;
+                        this.state.templateImage = savedData.templateUrl;
+                        document.getElementById('config-status').innerText = "Loaded from Database ✓";
+                        this.updateInputs();
+                        this.loadAndDrawImage();
+                    } else {
+                        document.getElementById('config-status').innerText = "No saved settings found.";
+                        this.drawPlaceholder();
+                    }
                 } else {
-                    this.drawPlaceholder();
+                    // Fallback to local if window function not ready immediately
+                    setTimeout(() => this.init(), 500);
                 }
             },
 
+            async saveConfig() {
+                const btn = document.getElementById('save-btn');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loader"></span> Saving...';
+
+                if (!this.state.templateImage) {
+                    alert("Please upload an image first.");
+                    btn.disabled = false; btn.innerHTML = originalText;
+                    return;
+                }
+
+                try {
+                    // 1. Handle Image Upload (if it's base64, it's new)
+                    let finalImageUrl = this.state.templateImage;
+                    if (this.state.templateImage.startsWith('data:')) {
+                        const blob = await (await fetch(this.state.templateImage)).blob();
+                        const formData = new FormData();
+                        formData.append('file', blob);
+                        formData.append('upload_preset', this.cloudinary.uploadPreset);
+                        
+                        const res = await fetch(`https://api.cloudinary.com/v1_1/${this.cloudinary.cloudName}/image/upload`, { method: 'POST', body: formData });
+                        const data = await res.json();
+                        finalImageUrl = data.secure_url;
+                    }
+
+                    // 2. Save Config + Image URL to Firestore
+                    const success = await window.saveGlobalSettings({
+                        templateUrl: finalImageUrl,
+                        config: this.state.config,
+                        lastUpdated: new Date().toISOString()
+                    });
+
+                    if (success) {
+                        alert("Settings & Image Saved to Database!");
+                        this.state.templateImage = finalImageUrl; // Update local state to URL
+                    } else {
+                        alert("Failed to save to database. Check console.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error saving: " + e.message);
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            },
+
+            // ... (Standard View Logic) ...
             switchView(viewName) {
                 document.getElementById('view-config').classList.add('hidden');
                 document.getElementById('view-analytics').classList.add('hidden');
-                document.getElementById('nav-config').classList.remove('text-white');
-                document.getElementById('nav-analytics').classList.remove('text-white');
-                document.getElementById('nav-config').classList.add('text-gray-400');
-                document.getElementById('nav-analytics').classList.add('text-gray-400');
-
                 document.getElementById(`view-${viewName}`).classList.remove('hidden');
-                document.getElementById(`nav-${viewName}`).classList.remove('text-gray-400');
-                document.getElementById(`nav-${viewName}`).classList.add('text-white');
-
-                if (viewName === 'analytics') {
-                    this.loadAnalytics();
-                }
+                if (viewName === 'analytics') this.loadAnalytics();
             },
 
             async loadAnalytics() {
                 const tbody = document.getElementById('analytics-body');
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-8">Fetching records...</td></tr>';
-
                 if (window.fetchCards) {
-                    const cards = await window.fetchCards();
+                    const result = await window.fetchCards();
+                    if (!result.success) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 py-8">Error: ${result.error}</td></tr>`; return; }
+                    const cards = result.data;
+                    if (cards.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-8">No cards generated yet.</td></tr>'; return; }
+                    if (result.warning) alert(result.warning + "\nCheck Console for Index Link.");
                     
-                    if (cards.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-8">No cards generated yet.</td></tr>';
-                        return;
-                    }
-
                     tbody.innerHTML = cards.map(card => {
-                        const date = card.timestamp ? new Date(card.timestamp.seconds * 1000).toLocaleString() : 'Just now';
-                        return `
-                        <tr>
-                            <td class="text-gray-400 text-sm">${date}</td>
-                            <td class="font-bold text-white">${card.name}</td>
-                            <td class="text-yellow-500">${card.batch}</td>
-                            <td><span class="status-badge">Generated</span></td>
-                            <td>
-                                <a href="${card.imageUrl}" target="_blank" class="text-purple-400 hover:text-purple-300 text-sm hover:underline flex items-center gap-1">
-                                    View Card ↗
-                                </a>
-                            </td>
-                        </tr>
-                        `;
+                        const date = card.timestamp ? (card.timestamp.seconds ? new Date(card.timestamp.seconds * 1000).toLocaleString() : new Date(card.timestamp).toLocaleString()) : 'N/A';
+                        return `<tr><td class="text-gray-400 text-sm">${date}</td><td class="font-bold text-white">${card.name}</td><td class="text-yellow-500">${card.batch}</td><td><span class="status-badge">Generated</span></td><td><a href="${card.imageUrl}" target="_blank" class="text-purple-400 hover:text-purple-300 text-sm hover:underline">View ↗</a></td></tr>`;
                     }).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-8">Database connection not ready.</td></tr>';
                 }
             },
 
@@ -253,7 +297,6 @@
                 document.getElementById('batch-y').value = this.state.config.batch.y;
                 document.getElementById('batch-size').value = this.state.config.batch.size;
             },
-
             handleImageUpload(input) {
                 const file = input.files[0];
                 if (!file) return;
@@ -265,13 +308,12 @@
                 };
                 reader.readAsDataURL(file);
             },
-
             loadAndDrawImage() {
                 this.imgObj = new Image();
+                this.imgObj.crossOrigin = "Anonymous"; // Important for Canvas with external URLs
                 this.imgObj.src = this.state.templateImage;
                 this.imgObj.onload = () => this.updatePreview();
             },
-
             drawPlaceholder() {
                 const canvas = document.getElementById('admin-canvas');
                 const ctx = canvas.getContext('2d');
@@ -280,7 +322,6 @@
                 ctx.fillStyle = '#555'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
                 ctx.fillText("Upload a template to begin", 300, 200);
             },
-
             updatePreview() {
                 if (!this.imgObj) return;
                 this.state.config.name.x = parseFloat(document.getElementById('name-x').value) || 0;
@@ -306,17 +347,6 @@
                 ctx.font = `200 ${this.state.config.batch.size * (canvas.width/1000) * 1.5}px 'Clash Grotesk'`;
                 ctx.fillStyle = '#FFD700'; ctx.textAlign = 'center';
                 ctx.fillText("First Batch", batchX, batchY);
-            },
-
-            saveConfig() {
-                if (!this.state.templateImage) return alert("Please upload an image first.");
-                localStorage.setItem('cardConfig', JSON.stringify(this.state.config));
-                localStorage.setItem('cardTemplate', this.state.templateImage);
-                alert("Settings Saved!");
-            },
-
-            resetData() {
-                if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); }
             }
         };
 
