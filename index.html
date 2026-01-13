@@ -6,6 +6,7 @@
     <title>Admin Panel - Card Generator</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,300,400,500,600,700&display=swap" rel="stylesheet">
 
     <style>
@@ -16,8 +17,8 @@
         .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .input-dark { background-color: #000; border: 1px solid #444; color: white; }
         .analytics-table { width: 100%; border-collapse: collapse; }
-        .analytics-table th { text-align: left; padding: 1rem; color: #888; border-bottom: 1px solid #333; font-weight: 500; }
-        .analytics-table td { padding: 1rem; border-bottom: 1px solid #222; }
+        .analytics-table th { text-align: left; padding: 1rem; color: #888; border-bottom: 1px solid #333; font-weight: 500; font-size: 0.875rem; }
+        .analytics-table td { padding: 1rem; border-bottom: 1px solid #222; vertical-align: middle; }
         .analytics-table tr:hover { background: rgba(255,255,255,0.02); }
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
         .loader { border: 2px solid #333; border-top: 2px solid #fff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
@@ -56,20 +57,37 @@
 
                 <div class="space-y-4">
                     <p class="text-sm text-gray-400 mb-2">2. Adjust Positions</p>
+                    
+                    <!-- Name Config -->
                     <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                         <h3 class="font-bold mb-3 text-white border-b border-gray-700 pb-2">Name Settings</h3>
                         <div class="grid grid-cols-3 gap-3">
-                            <div><label class="text-xs text-gray-500 block mb-1">X Pos (%)</label><input type="number" id="name-x" value="50" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
-                            <div><label class="text-xs text-gray-500 block mb-1">Y Pos (%)</label><input type="number" id="name-y" value="50" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
-                            <div><label class="text-xs text-gray-500 block mb-1">Size</label><input type="number" id="name-size" value="40" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">X Pos (%)</label><input type="number" id="name-x" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Y Pos (%)</label><input type="number" id="name-y" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Size</label><input type="number" id="name-size" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
                         </div>
                     </div>
+
+                    <!-- Batch Config -->
                     <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                         <h3 class="font-bold mb-3 text-yellow-500 border-b border-gray-700 pb-2">Batch Settings</h3>
                         <div class="grid grid-cols-3 gap-3">
-                            <div><label class="text-xs text-gray-500 block mb-1">X Pos (%)</label><input type="number" id="batch-x" value="50" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
-                            <div><label class="text-xs text-gray-500 block mb-1">Y Pos (%)</label><input type="number" id="batch-y" value="65" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
-                            <div><label class="text-xs text-gray-500 block mb-1">Size</label><input type="number" id="batch-size" value="20" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">X Pos (%)</label><input type="number" id="batch-x" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Y Pos (%)</label><input type="number" id="batch-y" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Size</label><input type="number" id="batch-size" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                        </div>
+                    </div>
+
+                    <!-- Barcode Config -->
+                     <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                        <h3 class="font-bold mb-3 text-green-500 border-b border-gray-700 pb-2">Barcode Settings (Pink)</h3>
+                        <div class="grid grid-cols-2 gap-3 mb-2">
+                            <div><label class="text-xs text-gray-500 block mb-1">X Pos (%)</label><input type="number" id="barcode-x" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Y Pos (%)</label><input type="number" id="barcode-y" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-xs text-gray-500 block mb-1">Scale</label><input type="number" step="0.1" id="barcode-size" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
+                            <div><label class="text-xs text-gray-500 block mb-1">Rotation (°)</label><input type="number" id="barcode-rotation" class="w-full p-2 rounded text-sm input-dark" oninput="adminApp.updatePreview()"></div>
                         </div>
                     </div>
                 </div>
@@ -80,7 +98,7 @@
 
             <!-- Preview -->
             <div class="glass-panel p-4 rounded-2xl flex flex-col items-center justify-start bg-black/50 min-h-[500px]">
-                <h3 class="text-gray-400 mb-4 text-sm w-full text-center border-b border-gray-800 pb-2">Live Preview (John Doe / First Batch)</h3>
+                <h3 class="text-gray-400 mb-4 text-sm w-full text-center border-b border-gray-800 pb-2">Live Preview</h3>
                 <canvas id="admin-canvas" class="max-w-full h-auto shadow-2xl rounded-lg border border-gray-800"></canvas>
             </div>
         </div>
@@ -97,8 +115,17 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="analytics-table">
-                        <thead><tr><th>Generated At</th><th>Name</th><th>Batch</th><th>Status</th><th>Action</th></tr></thead>
-                        <tbody id="analytics-body"><tr><td colspan="5" class="text-center text-gray-500 py-8">Loading data...</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Generated At</th>
+                                <th>Name</th>
+                                <th>Batch</th>
+                                <th>Mobile</th>
+                                <th>User Photo</th>
+                                <th>Card</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analytics-body"><tr><td colspan="6" class="text-center text-gray-500 py-8">Loading data...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -125,63 +152,39 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Ensure Auth Helper
         const ensureAuth = async () => {
-            if (!auth.currentUser) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Auth error:", error);
-                    return false;
-                }
-            }
+            if (!auth.currentUser) await signInAnonymously(auth);
             return true;
         };
 
-        // --- Global DB Functions ---
-        
-        // 1. Load Settings
         window.loadGlobalSettings = async () => {
             if (!await ensureAuth()) return null;
             try {
                 const docSnap = await getDoc(doc(db, "app_settings", "config"));
                 if (docSnap.exists()) return docSnap.data();
                 return null;
-            } catch (e) {
-                console.error("Load settings error:", e);
-                return null;
-            }
+            } catch (e) { console.error(e); return null; }
         };
 
-        // 2. Save Settings
         window.saveGlobalSettings = async (settingsData) => {
             if (!await ensureAuth()) return false;
             try {
                 await setDoc(doc(db, "app_settings", "config"), settingsData);
                 return true;
-            } catch (e) {
-                console.error("Save settings error:", e);
-                return false;
-            }
+            } catch (e) { console.error(e); return false; }
         };
 
-        // 3. Fetch Analytics
         window.fetchCards = async () => {
             if (!await ensureAuth()) return { success: false, error: "Auth failed" };
             try {
-                try {
-                    const q = query(collection(db, "generated_cards"), orderBy("timestamp", "desc"), limit(50));
-                    const querySnapshot = await getDocs(q);
-                    return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
-                } catch (indexError) {
-                    if (indexError.code === 'failed-precondition') {
-                         const q = query(collection(db, "generated_cards"), limit(50));
-                         const querySnapshot = await getDocs(q);
-                         return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), warning: "Missing Index" };
-                    }
-                    throw indexError;
-                }
-            } catch (e) { return { success: false, error: e.message }; }
+                const q = query(collection(db, "generated_cards"), orderBy("timestamp", "desc"), limit(50));
+                const querySnapshot = await getDocs(q);
+                return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
+            } catch (e) { 
+                const q = query(collection(db, "generated_cards"), limit(50));
+                const querySnapshot = await getDocs(q);
+                return { success: true, data: querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })), warning: "Index missing" };
+            }
         };
     </script>
 
@@ -189,38 +192,38 @@
         const adminApp = {
             state: {
                 currentView: 'config',
-                templateImage: null, // Base64 or URL
-                config: { name: { x: 50, y: 50, size: 40 }, batch: { x: 50, y: 65, size: 20 } }
+                templateImage: null,
+                config: { 
+                    name: { x: 50, y: 50, size: 40 }, 
+                    batch: { x: 50, y: 65, size: 20 },
+                    // Mobile display removed
+                    barcode: { x: 50, y: 85, size: 2, rotation: 0 } 
+                }
             },
             imgObj: null,
             cloudinary: { cloudName: 'da6fjyirm', uploadPreset: 'ifada-card' },
 
             async init() {
-                // Try loading from Database first
-                document.getElementById('config-status').innerText = "Loading from DB...";
+                document.getElementById('config-status').innerText = "Loading...";
                 if (window.loadGlobalSettings) {
                     const savedData = await window.loadGlobalSettings();
                     if (savedData) {
-                        this.state.config = savedData.config;
+                        this.state.config = { ...this.state.config, ...savedData.config };
                         this.state.templateImage = savedData.templateUrl;
-                        document.getElementById('config-status').innerText = "Loaded from Database ✓";
+                        document.getElementById('config-status').innerText = "Loaded ✓";
                         this.updateInputs();
                         this.loadAndDrawImage();
                     } else {
-                        document.getElementById('config-status').innerText = "No saved settings found.";
+                        document.getElementById('config-status').innerText = "No settings.";
                         this.drawPlaceholder();
                     }
-                } else {
-                    // Fallback to local if window function not ready immediately
-                    setTimeout(() => this.init(), 500);
-                }
+                } else { setTimeout(() => this.init(), 500); }
             },
 
             async saveConfig() {
                 const btn = document.getElementById('save-btn');
                 const originalText = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = '<span class="loader"></span> Saving...';
+                btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Saving...';
 
                 if (!this.state.templateImage) {
                     alert("Please upload an image first.");
@@ -229,7 +232,6 @@
                 }
 
                 try {
-                    // 1. Handle Image Upload (if it's base64, it's new)
                     let finalImageUrl = this.state.templateImage;
                     if (this.state.templateImage.startsWith('data:')) {
                         const blob = await (await fetch(this.state.templateImage)).blob();
@@ -242,7 +244,6 @@
                         finalImageUrl = data.secure_url;
                     }
 
-                    // 2. Save Config + Image URL to Firestore
                     const success = await window.saveGlobalSettings({
                         templateUrl: finalImageUrl,
                         config: this.state.config,
@@ -250,21 +251,14 @@
                     });
 
                     if (success) {
-                        alert("Settings & Image Saved to Database!");
-                        this.state.templateImage = finalImageUrl; // Update local state to URL
-                    } else {
-                        alert("Failed to save to database. Check console.");
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert("Error saving: " + e.message);
-                }
+                        alert("Saved to Database!");
+                        this.state.templateImage = finalImageUrl;
+                    } else { alert("Failed to save."); }
+                } catch (e) { alert("Error: " + e.message); }
 
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.disabled = false; btn.innerHTML = originalText;
             },
 
-            // ... (Standard View Logic) ...
             switchView(viewName) {
                 document.getElementById('view-config').classList.add('hidden');
                 document.getElementById('view-analytics').classList.add('hidden');
@@ -274,17 +268,20 @@
 
             async loadAnalytics() {
                 const tbody = document.getElementById('analytics-body');
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-8">Fetching records...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-8">Fetching records...</td></tr>';
                 if (window.fetchCards) {
                     const result = await window.fetchCards();
-                    if (!result.success) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-red-500 py-8">Error: ${result.error}</td></tr>`; return; }
+                    if (!result.success) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-8">Error: ${result.error}</td></tr>`; return; }
                     const cards = result.data;
-                    if (cards.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-8">No cards generated yet.</td></tr>'; return; }
-                    if (result.warning) alert(result.warning + "\nCheck Console for Index Link.");
+                    if (cards.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-8">No records found.</td></tr>'; return; }
                     
                     tbody.innerHTML = cards.map(card => {
-                        const date = card.timestamp ? (card.timestamp.seconds ? new Date(card.timestamp.seconds * 1000).toLocaleString() : new Date(card.timestamp).toLocaleString()) : 'N/A';
-                        return `<tr><td class="text-gray-400 text-sm">${date}</td><td class="font-bold text-white">${card.name}</td><td class="text-yellow-500">${card.batch}</td><td><span class="status-badge">Generated</span></td><td><a href="${card.imageUrl}" target="_blank" class="text-purple-400 hover:text-purple-300 text-sm hover:underline">View ↗</a></td></tr>`;
+                        const date = card.timestamp ? new Date(card.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                        const photoLink = card.userPhotoUrl 
+                            ? `<a href="${card.userPhotoUrl}" target="_blank" class="text-blue-400 hover:underline">View Photo ↗</a>` 
+                            : '<span class="text-gray-600">No Photo</span>';
+                            
+                        return `<tr><td class="text-gray-400 text-sm">${date}</td><td class="font-bold text-white">${card.name}</td><td class="text-yellow-500">${card.batch}</td><td class="text-gray-300">${card.mobile || '-'}</td><td>${photoLink}</td><td><a href="${card.imageUrl}" target="_blank" class="text-purple-400 hover:text-purple-300 hover:underline">Card ↗</a></td></tr>`;
                     }).join('');
                 }
             },
@@ -293,10 +290,18 @@
                 document.getElementById('name-x').value = this.state.config.name.x;
                 document.getElementById('name-y').value = this.state.config.name.y;
                 document.getElementById('name-size').value = this.state.config.name.size;
+                
                 document.getElementById('batch-x').value = this.state.config.batch.x;
                 document.getElementById('batch-y').value = this.state.config.batch.y;
                 document.getElementById('batch-size').value = this.state.config.batch.size;
+
+                const barcode = this.state.config.barcode || {x:50, y:85, size:2, rotation:0};
+                document.getElementById('barcode-x').value = barcode.x;
+                document.getElementById('barcode-y').value = barcode.y;
+                document.getElementById('barcode-size').value = barcode.size;
+                document.getElementById('barcode-rotation').value = barcode.rotation || 0;
             },
+
             handleImageUpload(input) {
                 const file = input.files[0];
                 if (!file) return;
@@ -308,12 +313,14 @@
                 };
                 reader.readAsDataURL(file);
             },
+
             loadAndDrawImage() {
                 this.imgObj = new Image();
-                this.imgObj.crossOrigin = "Anonymous"; // Important for Canvas with external URLs
+                this.imgObj.crossOrigin = "Anonymous";
                 this.imgObj.src = this.state.templateImage;
                 this.imgObj.onload = () => this.updatePreview();
             },
+
             drawPlaceholder() {
                 const canvas = document.getElementById('admin-canvas');
                 const ctx = canvas.getContext('2d');
@@ -322,31 +329,71 @@
                 ctx.fillStyle = '#555'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
                 ctx.fillText("Upload a template to begin", 300, 200);
             },
+
             updatePreview() {
                 if (!this.imgObj) return;
+                
                 this.state.config.name.x = parseFloat(document.getElementById('name-x').value) || 0;
                 this.state.config.name.y = parseFloat(document.getElementById('name-y').value) || 0;
                 this.state.config.name.size = parseFloat(document.getElementById('name-size').value) || 10;
+                
                 this.state.config.batch.x = parseFloat(document.getElementById('batch-x').value) || 0;
                 this.state.config.batch.y = parseFloat(document.getElementById('batch-y').value) || 0;
                 this.state.config.batch.size = parseFloat(document.getElementById('batch-size').value) || 10;
+
+                this.state.config.barcode = {
+                    x: parseFloat(document.getElementById('barcode-x').value) || 0,
+                    y: parseFloat(document.getElementById('barcode-y').value) || 0,
+                    size: parseFloat(document.getElementById('barcode-size').value) || 1,
+                    rotation: parseFloat(document.getElementById('barcode-rotation').value) || 0
+                };
 
                 const canvas = document.getElementById('admin-canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = this.imgObj.width; canvas.height = this.imgObj.height;
                 ctx.drawImage(this.imgObj, 0, 0);
 
-                const nameX = (this.state.config.name.x / 100) * canvas.width;
-                const nameY = (this.state.config.name.y / 100) * canvas.height;
-                ctx.font = `500 ${this.state.config.name.size * (canvas.width/1000) * 2}px 'Clash Grotesk'`;
-                ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center';
-                ctx.fillText("JOHN DOE", nameX, nameY);
+                const drawText = (text, config, color, weight) => {
+                    const x = (config.x / 100) * canvas.width;
+                    const y = (config.y / 100) * canvas.height;
+                    const size = config.size * (canvas.width/1000) * 1.5;
+                    ctx.font = `${weight} ${size}px 'Clash Grotesk'`;
+                    ctx.fillStyle = color;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(text, x, y);
+                };
 
-                const batchX = (this.state.config.batch.x / 100) * canvas.width;
-                const batchY = (this.state.config.batch.y / 100) * canvas.height;
-                ctx.font = `200 ${this.state.config.batch.size * (canvas.width/1000) * 1.5}px 'Clash Grotesk'`;
-                ctx.fillStyle = '#FFD700'; ctx.textAlign = 'center';
-                ctx.fillText("First Batch", batchX, batchY);
+                drawText("JOHN DOE", this.state.config.name, '#FFFFFF', '500');
+                drawText("First Batch", this.state.config.batch, '#FFD700', '200');
+                
+                // Draw Barcode with Rotation
+                const tempCanvas = document.createElement('canvas');
+                try {
+                    JsBarcode(tempCanvas, "9999999999", {
+                        format: "CODE128",
+                        lineColor: "#FFEB3B",
+                        background: null,
+                        displayValue: false,
+                        width: 2,
+                        height: 50,
+                        margin: 0
+                    });
+
+                    const bcConf = this.state.config.barcode;
+                    const bcX = (bcConf.x / 100) * canvas.width;
+                    const bcY = (bcConf.y / 100) * canvas.height;
+                    const scale = bcConf.size || 2;
+                    const rotation = bcConf.rotation || 0;
+                    
+                    const bcWidth = tempCanvas.width * scale;
+                    const bcHeight = tempCanvas.height * scale;
+
+                    ctx.save();
+                    ctx.translate(bcX, bcY);
+                    ctx.rotate(rotation * Math.PI / 180);
+                    ctx.drawImage(tempCanvas, -bcWidth/2, -bcHeight/2, bcWidth, bcHeight);
+                    ctx.restore();
+                } catch(e) { console.error("Barcode preview error", e); }
             }
         };
 
